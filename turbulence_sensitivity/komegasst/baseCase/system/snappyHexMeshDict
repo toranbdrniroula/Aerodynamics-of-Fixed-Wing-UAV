@@ -1,0 +1,145 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+geometry
+{
+    uav.stl
+    {
+        type triSurfaceMesh;
+        name uav;
+    }
+
+    refinementBox
+    {
+        type box;
+        min  (-1 -1 0);
+        max  ( 2  1  1.8);
+    }
+}
+
+castellatedMeshControls
+{
+    maxLocalCells 150000;
+    maxGlobalCells 2000000;
+    minRefinementCells 10;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 9;
+
+    features
+    (
+        {
+            file "uav.eMesh";
+            level 4;
+        }
+    );
+
+    refinementSurfaces
+    {
+        uav
+        {
+            level (5 6);
+            patchInfo
+            {
+                type wall;
+                inGroups (uavGroup);
+            }
+        }
+    }
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+        refinementBox
+        {
+            mode inside;
+            levels ((1E15 1));
+        }
+    }
+
+
+    createCellZones true;
+    locationInMesh (5 0 0);
+    allowFreeStandingZoneFaces false;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 2.0;
+    nSolveIter 250;
+    nRelaxIter 5;
+	nFeatureSnapIter 10;
+	implicitFeatureSnap false;
+	explicitFeatureSnap true;
+	multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes false;
+    layers
+    {
+        uav
+        {
+            nSurfaceLayers 8;
+			firstLayerThickness 1.4e-5;
+			expansionRatio 1.2;
+        }
+    }
+	
+	firstLayerThickness 1.4e-5;
+	expansionRatio 1.2;
+    //finalLayerThickness 1e-6;
+    minThickness 1e-6;
+    nGrow 0;
+    featureAngle 60;
+    slipFeatureAngle 30;
+    nRelaxIter 3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+
+meshQualityControls
+{
+    #includeEtc "caseDicts/meshQualityDict"
+	minFaceWeight 0.05;
+    nSmoothScale 4;
+    errorReduction 0.75;
+}
+
+
+writeFlags
+(
+    scalarLevels
+    layerSets
+    layerFields     
+);
+
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //

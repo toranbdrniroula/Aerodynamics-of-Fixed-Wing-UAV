@@ -1,0 +1,13 @@
+#!/bin/bash
+
+AOA_CASES=(AoA_0 AoA_3 AoA_5 AoA_8 AoA_10 AoA_13 AoA_17)
+
+for CASE in "${AOA_CASES[@]}"; do
+    echo "Processing $CASE"
+    cd "$CASE" || { echo "$CASE not found"; continue; }
+    echo "Computing Q-criterion for $CASE..."
+    postProcess -func Q -latestTime > /dev/null 2>&1
+    cd ..
+    echo "Done with $CASE"
+done
+
