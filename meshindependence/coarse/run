@@ -1,0 +1,33 @@
+#!/bin/bash
+BASE_CASE="baseCase"
+V=20
+
+cd $BASE_CASE
+cp -r 0 0.orig
+./Allrun
+rm -r 0
+mv 0.orig 0
+cd ..
+
+
+AOA=0
+AOA_RAD=$(echo "($AOA) * 3.14159265359 / 180" | bc -l)
+Vx=$(echo "$V * c($AOA_RAD)" | bc -l)
+Vy=$(echo "$V * s($AOA_RAD)" | bc -l)
+CASE_DIR="AoA_$AOA"
+cp -r $BASE_CASE $CASE_DIR
+
+python3 modify_velocity.py $CASE_DIR $Vx $Vy
+
+cd $CASE_DIR
+decomposePar
+mpirun -np 6 simpleFoam -parallel >> log.simpleFoam
+reconstructPar >> log.reconstructPar
+rm -r proc*
+foamLog log.simpleFoam
+cd ..
+
+echo "Simulation completed for AoA = ${AOA}°"
+
+
+
