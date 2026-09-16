@@ -1,0 +1,42 @@
+#!/bin/bash
+BASE_CASE="baseCase"
+V=20
+
+cd $BASE_CASE
+cp -r 0 0.orig
+chmod +x Allrun
+./Allrun
+rm -r 0
+mv 0.orig 0
+cd ..
+
+
+for AOA in 0 3 5 10 13; do
+    AOA_RAD=$(echo "($AOA-4) * 3.14159265359 / 180" | bc -l)
+
+    Vx=$(echo "$V * c($AOA_RAD)" | bc -l)
+    Vy=$(echo "$V * s($AOA_RAD)" | bc -l)
+
+    CASE_DIR="AoA_${AOA}"
+    cp -r $BASE_CASE $CASE_DIR
+
+    python3 modify_velocity.py $CASE_DIR $Vx $Vy
+
+    cd $CASE_DIR
+	decomposePar
+	mpirun -np 6 simpleFoam -parallel 2>&1 | tee log.simpleFoam
+	reconstructPar 2>&1 | tee log.reconstructPar
+	rm -r proc*
+	foamLog log.simpleFoam
+	echo "Computing Q-criterion for $CASE..."
+    postProcess -func Q -latestTime 2>&1 | tee log.qcriterion
+	cd constant
+	rm -r extendedFeatureEdgeMesh
+	rm -r polyMesh
+	cd ..
+    cd ..
+
+    echo "Simulation completed for AoA = ${AOA}°"
+done
+
+echo "All simulations completed!"

@@ -1,0 +1,12 @@
+#!/bin/sh
+blockMesh
+surfaceFeatureExtract
+decomposePar
+mpirun -np 6 snappyHexMesh -overwrite -parallel 2>&1 | tee log.snappyHexMesh
+reconstructParMesh -constant -mergeTol 1e-6 2>&1 | tee log.reconstructParMesh
+rm -r proc*
+renumberMesh -overwrite 2>&1 | tee log.renumberMesh
+checkMesh -allTopology -allGeometry 2>&1 | tee log.checkMesh
+
+
+#------------------------------------------------------------------------------

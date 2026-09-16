@@ -1,0 +1,11 @@
+#!/bin/sh
+rm -rf [1-9]*
+rm -rf logs
+rm -rf postProcessing
+rm -rf constant/extendedFeatureEdgeMesh
+rm -rf constant/polyMesh
+rm -rf proc*
+rm -rf log.*
+
+
+#------------------------------------------------------------------------------

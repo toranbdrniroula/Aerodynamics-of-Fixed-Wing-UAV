@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for AOA in 0 3 5 10 13; do
+    CASE_DIR="AoA_${AOA}"
+    cd $CASE_DIR
+    postProcess -func Q -latestTime 2>&1 | tee log.qcriterion
+	postProcess -func wallShearStress -latestTime 2>&1 | tee log.wallShearStress
+    cd ..
+    echo "Simulation completed for AoA = ${AOA}°"
+done
+
+echo "All simulations completed!"
